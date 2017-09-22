@@ -1,4 +1,4 @@
-package com.sk7software.bincollection.util;
+package com.sk7software.nextmatch.util;
 
 /*
  * Copyright 2016-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-import com.sk7software.bincollection.exception.DeviceAddressClientException;
-import com.sk7software.bincollection.exception.UnauthorizedException;
-import com.sk7software.bincollection.model.EchoAddress;
+import com.sk7software.nextmatch.exception.DeviceAddressClientException;
+import com.sk7software.nextmatch.exception.UnauthorizedException;
+import com.sk7software.nextmatch.model.EchoAddress;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

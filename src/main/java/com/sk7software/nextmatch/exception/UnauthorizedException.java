@@ -1,4 +1,4 @@
-package com.sk7software.bincollection.exception;
+package com.sk7software.nextmatch.exception;
 
 public class UnauthorizedException extends DeviceAddressClientException {
 

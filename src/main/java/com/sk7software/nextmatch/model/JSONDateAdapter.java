@@ -1,4 +1,4 @@
-package com.sk7software.bincollection.model;
+package com.sk7software.nextmatch.model;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;

@@ -4,23 +4,19 @@
  * and open the template in the editor.
  */
 
-package com.sk7software.bincollection;
+package com.sk7software.nextmatch;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.slu.Slot;
 import com.amazon.speech.speechlet.*;
-import com.amazon.speech.speechlet.interfaces.system.SystemInterface;
-import com.amazon.speech.speechlet.interfaces.system.SystemState;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 
 import com.amazon.speech.ui.SimpleCard;
-import com.amazon.speech.ui.SsmlOutputSpeech;
-import com.amazonaws.util.json.JSONException;
 import com.amazonaws.util.json.JSONObject;
-import com.sk7software.bincollection.model.Match;
-import com.sk7software.bincollection.util.DateUtil;
+import com.sk7software.nextmatch.model.Match;
+import com.sk7software.nextmatch.util.DateUtil;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -29,10 +25,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;

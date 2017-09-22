@@ -1,6 +1,6 @@
-package com.sk7software.bincollection.model;
+package com.sk7software.nextmatch.model;
 
-import com.sk7software.bincollection.util.DateUtil;
+import com.sk7software.nextmatch.util.DateUtil;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

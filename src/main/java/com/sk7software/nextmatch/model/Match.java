@@ -1,4 +1,4 @@
-package com.sk7software.bincollection.model;
+package com.sk7software.nextmatch.model;
 
 import com.amazonaws.util.json.JSONArray;
 import com.amazonaws.util.json.JSONException;

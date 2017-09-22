@@ -1,4 +1,4 @@
-package com.sk7software.bincollection;
+package com.sk7software.nextmatch;
 
 import java.util.HashSet;
 import java.util.Set;
