@@ -16,6 +16,8 @@ import com.amazon.speech.ui.Reprompt;
 import com.amazon.speech.ui.SimpleCard;
 import com.amazonaws.util.json.JSONObject;
 import com.sk7software.nextmatch.model.Match;
+import com.sk7software.nextmatch.model.Position;
+import com.sk7software.nextmatch.model.Result;
 import com.sk7software.nextmatch.util.DateUtil;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
@@ -38,11 +40,15 @@ import java.util.List;
 public class WhatsOurNextMatchSpeechlet implements SpeechletV2 {
     private static final Logger log = LoggerFactory.getLogger(WhatsOurNextMatchSpeechlet.class);
 
-    private static final String FIXTURES_URL = "http://www.sk7software.co.uk/matches?id=";
-    private static final String RESULTS_URL = "http://www.sk7software.co.uk/matches/inputPostcode.php?";
+    private static final String FIXTURES_URL = "http://www.sk7software.co.uk/Fixtures/fixtures.php";
+    private static final String RESULTS_URL = "http://www.sk7software.co.uk/Fixtures/results.php";
+    private static final String LEAGUE_URL = "http://www.sk7software.co.uk/Fixtures/league.php";
     private static final String OUR_TEAM = "BRAMHALL";
 
     private List<Match> matches;
+    private List<Result> results;
+    private List<Position> league;
+    private int indexSoFar = 0;
 
     @Override
     public void onSessionStarted(final SpeechletRequestEnvelope<SessionStartedRequest> speechletRequestEnvelope) {
@@ -56,7 +62,7 @@ public class WhatsOurNextMatchSpeechlet implements SpeechletV2 {
         log.info("onLaunch requestId={}, sessionId={}",
                 speechletRequestEnvelope.getRequest().getRequestId(),
                 speechletRequestEnvelope.getSession().getSessionId());
-        return getNextMatchResponse(speechletRequestEnvelope.getSession());
+        return getNextMatchResponse();
     }
 
     @Override
@@ -71,15 +77,20 @@ public class WhatsOurNextMatchSpeechlet implements SpeechletV2 {
 
         switch (intentName) {
             case "NextMatchIntent":
-                return getNextMatchResponse(session);
-//            case "AllMatchesIntent":
-//                return getEchoAddressResponse(speechletRequestEnvelope);
-//            case "MatchDateIntent":
-//                return getBinColourResponse(intent);
-//            case "LastResultIntent":
-//                return getStopResponse();
-//            case "LastXResultsIntent":
-//                return clearAddressResponse(speechletRequestEnvelope);
+                return getNextMatchResponse();
+            case "MatchAfterIntent":
+                return getMatchAfterResponse();
+            case "LeagueTableIntent":
+                return getLeagueTableResponse(false);
+            case "LeaguePositionIntent":
+                return getLeagueTableResponse(true);
+            case "MatchDateIntent":
+                return getMatchOnDateResponse(intent);
+            case "LastResultIntent":
+                return getResultResponse(1);
+            case "LastXResultsIntent":
+                int numResults = Integer.parseInt(intent.getSlot("number").getValue());
+                return getResultResponse(numResults);
             case "AMAZON.HelpIntent":
                 return getHelpResponse();
             case "AMAZON.StopIntent":
@@ -97,36 +108,204 @@ public class WhatsOurNextMatchSpeechlet implements SpeechletV2 {
     }
 
 
-    private SpeechletResponse getNextMatchResponse(Session session) {
+    private SpeechletResponse getNextMatchResponse() {
         StringBuilder speechText = new StringBuilder();
         try {
             String url = FIXTURES_URL;
             String matchesStr = getJsonResponse(url);
             matches = Match.createFromJSON(new JSONObject(matchesStr));
 
-            DateTime matchDate = getNextMatchDate(matches);
-            if (matchDate != null) {
-                List<Match> matchesOnDate = getMatchesOnDate(matches, matchDate);
-
-                if (matchesOnDate.size() > 0) {
-                    Match m = matchesOnDate.get(0);
-                    speechText.append("The next match is ");
-                    speechText.append(DateUtil.getDayDescription(m.getDate()));
-                    speechText.append(", against ");
-                    speechText.append(m.getOpponent(OUR_TEAM));
-                    speechText.append(". Kick-off is at ");
-                    speechText.append(DateUtil.getTimeDescription(m.getDate()));
-                    speechText.append(" at ");
-                    speechText.append(m.getVenue());
-                } else {
-                    speechText.append("Sorry, I couldn't find any upcoming matches");
-                }
+            if (matches.size() > 0) {
+                indexSoFar = 0;
+                Match m = matches.get(0);
+                speechText.append("The next match is ");
+                speechText.append(DateUtil.getDayDescription(m.getDate(), true));
+                speechText.append(", against ");
+                speechText.append(m.getOpponent(OUR_TEAM));
+                speechText.append(", kicking-off at ");
+                speechText.append(DateUtil.getTimeDescription(m.getDate()));
+                speechText.append(" at ");
+                speechText.append(m.getVenue());
             } else {
-                speechText.append("Sorry, I couldn't work out your next match date");
+                speechText.append("Sorry, I couldn't find any upcoming matches");
             }
         } catch (Exception e) {
             speechText.append("Sorry, there was a problem finding your match dates");
             log.error(e.getMessage());
+        }
+
+        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
+        speech.setText(speechText.toString());
+
+        // Create reprompt
+        Reprompt reprompt = new Reprompt();
+        PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
+        repromptSpeech.setText("Anything else?");
+        reprompt.setOutputSpeech(repromptSpeech);
+
+        // Create the Simple card content.
+        SimpleCard card = new SimpleCard();
+        card.setTitle("When's Our Next Match?");
+        card.setContent(speechText.toString());
+        return SpeechletResponse.newAskResponse(speech, reprompt, card);
+    }
+
+    private SpeechletResponse getMatchAfterResponse() {
+        StringBuilder speechText = new StringBuilder();
+        indexSoFar++;
+
+        if (matches.size() > indexSoFar) {
+            Match m = matches.get(indexSoFar);
+            speechText.append("The match after that is ");
+            speechText.append(DateUtil.getDayDescription(m.getDate(), false));
+            speechText.append(", against ");
+            speechText.append(m.getOpponent(OUR_TEAM));
+            speechText.append(", kicking-off at ");
+            speechText.append(DateUtil.getTimeDescription(m.getDate()));
+            speechText.append(" at ");
+            speechText.append(m.getVenue());
+        } else {
+            speechText.append("There are no more matches scheduled");
+        }
+
+        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
+        speech.setText(speechText.toString());
+
+        // Create reprompt
+        Reprompt reprompt = new Reprompt();
+        PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
+        repromptSpeech.setText("Anything else?");
+        reprompt.setOutputSpeech(repromptSpeech);
+
+        // Create the Simple card content.
+        SimpleCard card = new SimpleCard();
+        card.setTitle("When's Our Next Match?");
+        card.setContent(speechText.toString());
+        return SpeechletResponse.newAskResponse(speech, reprompt, card);
+    }
+
+    private SpeechletResponse getMatchOnDateResponse(Intent intent) {
+        StringBuilder speechText = new StringBuilder();
+        String dateStr = intent.getSlot("matchDate").getValue();
+        log.info("matchDate slot value: " + dateStr);
+        DateTime matchDate = new DateTime(dateStr);
+
+        List<Match> matchesOnDate = getMatchesOnDate(matches, matchDate);
+
+        if (matchesOnDate.size() > 0) {
+            boolean firstMatch = true;
+            speechText.append("On ");
+            speechText.append(DateUtil.getSpokenDate(matchDate));
+            speechText.append(", there is a match against ");
+            for (Match m : matchesOnDate) {
+                if (firstMatch) {
+                    firstMatch = false;
+                } else {
+                    speechText.append(", and one against ");
+                }
+                speechText.append(m.getOpponent(OUR_TEAM));
+                speechText.append(", kicking-off at ");
+                speechText.append(DateUtil.getTimeDescription(m.getDate()));
+                speechText.append(" at ");
+                speechText.append(m.getVenue());
+            }
+        } else {
+            speechText.append("There are no matches scheduled on ");
+            speechText.append(DateUtil.getSpokenDate(matchDate));
+        }
+
+        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
+        speech.setText(speechText.toString());
+
+        // Create reprompt
+        Reprompt reprompt = new Reprompt();
+        PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
+        repromptSpeech.setText("Anything else?");
+        reprompt.setOutputSpeech(repromptSpeech);
+
+        // Create the Simple card content.
+        SimpleCard card = new SimpleCard();
+        card.setTitle("When's Our Next Match?");
+        card.setContent(speechText.toString());
+        return SpeechletResponse.newAskResponse(speech, reprompt, card);
+    }
+
+    private SpeechletResponse getResultResponse(int numResults) {
+        StringBuilder speechText = new StringBuilder();
+        int resultIndex = 0;
+
+        try {
+            if (results == null) {
+                String url = RESULTS_URL;
+                String resultsStr = getJsonResponse(url);
+                results = Result.createFromJSON(new JSONObject(resultsStr));
+            }
+
+            if (results.size() > 0) {
+                for (Result r : results) {
+                    if (resultIndex < numResults) {
+                        speechText.append(DateUtil.getSpokenDate(r.getDate()));
+                        speechText.append(", ");
+                        speechText.append(r.getTeam1());
+                        speechText.append(", ");
+                        speechText.append(r.getScore1());
+                        speechText.append(", ");
+                        speechText.append(r.getTeam2());
+                        speechText.append(", ");
+                        speechText.append(r.getScore2());
+                        speechText.append(". ");
+                        resultIndex++;
+                    }
+                }
+            } else {
+                speechText.append("Sorry, I couldn't find any results");
+            }
+        } catch (Exception e) {
+            speechText.append("Sorry, there was a problem finding your results");
+            log.error(e.getMessage());
+        }
+
+        PlainTextOutputSpeech speech = new PlainTextOutputSpeech();
+        speech.setText(speechText.toString());
+
+        // Create reprompt
+        Reprompt reprompt = new Reprompt();
+        PlainTextOutputSpeech repromptSpeech = new PlainTextOutputSpeech();
+        repromptSpeech.setText("Anything else?");
+        reprompt.setOutputSpeech(repromptSpeech);
+
+        // Create the Simple card content.
+        SimpleCard card = new SimpleCard();
+        card.setTitle("When's Our Next Match?");
+        card.setContent(speechText.toString());
+        return SpeechletResponse.newAskResponse(speech, reprompt, card);
+    }
+
+    private SpeechletResponse getLeagueTableResponse(boolean position) {
+        StringBuilder speechText = new StringBuilder();
+
+        try {
+            if (league == null) {
+                String url = LEAGUE_URL;
+                String leagueStr = getJsonResponse(url);
+                league = Position.createFromJSON(new JSONObject(leagueStr));
+            }
+
+            if (league.size() > 0) {
+                for (Position p : league) {
+                    if (position && p.getTeam().toUpperCase().indexOf(OUR_TEAM) < 0) {
+                        continue;
+                    } else if (position) {
+                        speechText.append("You are at position ");
+                    }
+                    speechText.append(p.getSpokenText());
+                    speechText.append(". ");
+                }
+            } else {
+                speechText.append("Sorry, I couldn't find any teams in the league");
+            }
+        } catch (Exception e) {
+            speechText.append("Sorry, I couldn't fetch the league table");
         }
 
         PlainTextOutputSpeech speech = new PlainTextOutputSpeech();

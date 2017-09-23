@@ -1,12 +1,22 @@
-BinCollectionIntent When's my bin collection
-BinCollectionIntent When's my rubbish collection
-BinColourIntent When will my {colour} bin be collected
-BinColourIntent What about my {colour} bin
-EchoAddressIntent What address do you have for me
-EchoAddressIntent Tell me my address
-ThankYouIntent {thanks}
-ClearAddressIntent Reset my address
-ClearAddressIntent Clear my address
-ClearAddressIntent Clear my stored address
-ClearAddressIntent I have moved house
-ClearAddressIntent I have a new address
+NextMatchIntent When's our next match
+NextMatchIntent When is our next match
+NextMatchIntent What's the next match
+MatchAfterIntent What's the one after that
+MatchAfterIntent What is the one after that
+MatchDateIntent Is there a match on {matchDate}
+MatchDateIntent Is there a match {matchDate}
+MatchDateIntent Who are we playing on {matchDate}
+MatchDateIntent Who are we playing {matchDate}
+MatchDateIntent What about {matchDate}
+LastResultIntent What was our last result
+LastResultIntent What was the last result
+LastXResultsIntent What were our last {number} results
+LastXResultsIntent Give me our last {number} results
+LastXResultsIntent Tell me our last {number} results
+LastXResultsIntent What were the last {number} results
+LastXResultsIntent Give me the last {number} results
+LastXResultsIntent Tell me the last {number} results
+LeagueTableIntent Give me the table
+LeagueTableIntent Give me the league
+LeaguePositionIntent Where are we in the table
+LeaguePositionIntent Where are we in the league

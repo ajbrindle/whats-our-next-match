@@ -1,37 +1,40 @@
 {
   "intents": [
     {
-      "intent": "BinCollectionIntent"
+      "intent": "NextMatchIntent"
     },
     {
-      "intent": "EchoAddressIntent"
+      "intent": "MatchAfterIntent"
     },
     {
-      "intent": "ClearAddressIntent"
-    },
-    {
-      "slots": [
-        {
-          "name": "colour",
-          "type": "binColour"
-        }
-      ],
-      "intent": "BinColourIntent"
+      "intent": "AllMatchesIntent"
     },
     {
       "slots": [
         {
-          "name": "thanks",
-          "type": "thankyou"
+          "name": "matchDate",
+          "type": "AMAZON.DATE"
         }
       ],
-      "intent": "ThankYouIntent"
+      "intent": "MatchDateIntent"
     },
     {
-      "intent": "AMAZON.NoIntent"
+      "intent": "LastResultIntent"
     },
     {
-      "intent": "AMAZON.YesIntent"
+      "slots": [
+        {
+          "name": "number",
+          "type": "AMAZON.NUMBER"
+        }
+      ],
+      "intent": "LastXResultsIntent"
+    },
+    {
+      "intent": "LeagueTableIntent"
+    },
+    {
+      "intent": "LeaguePositionIntent"
     },
     {
       "intent": "AMAZON.HelpIntent"

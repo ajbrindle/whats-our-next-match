@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class JSONDateAdapter extends JsonDeserializer<DateTime> {
 
-    private static final String DATE_FORMAT = "dd/MM/yyyy hh:mi";
+    private static final String DATE_FORMAT = "dd/MM/yy hh:mm";
     private DateTimeFormatter formatter = DateTimeFormat.forPattern(DATE_FORMAT);
 
     public JSONDateAdapter() {

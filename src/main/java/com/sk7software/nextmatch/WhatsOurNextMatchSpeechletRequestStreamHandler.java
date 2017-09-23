@@ -19,7 +19,7 @@ public class WhatsOurNextMatchSpeechletRequestStreamHandler extends SpeechletReq
          * This Id can be found on https://developer.amazon.com/edw/home.html#/ "Edit" the relevant
          * Alexa Skill and put the relevant Application Ids in this Set.
          */
-        supportedApplicationIds.add("amzn1.ask.skill.cd3c8ac4-75ca-4a0f-be29-3f39fcd62497");
+        supportedApplicationIds.add("amzn1.ask.skill.9d9d7998-7998-47dd-8c98-6d46ef7f0689");
     }
 
     public WhatsOurNextMatchSpeechletRequestStreamHandler() {

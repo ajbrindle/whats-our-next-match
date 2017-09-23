@@ -19,7 +19,7 @@ public class DateUtil {
         return days;
     }
 
-    public static String getDayDescription(DateTime date) {
+    public static String getDayDescription(DateTime date, boolean dayCount) {
         int numDays = calcNumberOfDays(date);
         switch (numDays) {
             case 0:
@@ -27,8 +27,8 @@ public class DateUtil {
             case 1:
                 return "tomorrow";
             default:
-                return "in " + numDays + " days, on " + SPOKEN_DATE_FORMAT.print(date);
-
+                return (dayCount ? "in " + numDays + " days, " : "") +
+                        "on " + SPOKEN_DATE_FORMAT.print(date);
         }
     }
 
@@ -36,4 +36,7 @@ public class DateUtil {
         return SPOKEN_TIME_FORMAT.print(date);
     }
 
+    public static String getSpokenDate(DateTime date) {
+        return SPOKEN_DATE_FORMAT.print(date);
+    }
 }

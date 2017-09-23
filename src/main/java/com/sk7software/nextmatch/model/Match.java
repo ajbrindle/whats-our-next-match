@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 public class Match {
@@ -24,11 +25,11 @@ public class Match {
     public static List<Match> createFromJSON(JSONObject response) throws IOException, JSONException {
         Match match;
 
-        JSONArray responseArray = response.getJSONArray("bins");
+        JSONArray responseArray = response.getJSONArray("matches");
         ObjectMapper mapper = new ObjectMapper()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         List<Match> matches = mapper.readValue(responseArray.toString(), new TypeReference<List<Match>>(){});
-
+        matches.sort(Comparator.comparing(Match::getDate));
 
         return matches;
     }
